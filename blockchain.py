@@ -1,4 +1,9 @@
 # Initializing out empty blockchain List[]
+genisis_block = {
+    "previous_hash": "",
+    "index": 0,
+    "transactions": []
+}
 blockchain = []
 open_transactions = []
 owner = "Hari"
@@ -27,7 +32,13 @@ def add_transaction(recipient, sender=owner, amount=1.0,):
     open_transactions.append(transaction)
 
 def mine_block():
-    pass
+    last_block = blockchain[-1]
+    block = {
+        "previous_hash": "XYZ",
+        "index": len(blockchain),
+        "transactions": open_transactions
+    }
+    blockchain.append(block)
 
 def get_transaction_value():
     # Get the user input and transform it float and store it
