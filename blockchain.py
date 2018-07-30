@@ -65,11 +65,13 @@ blockchain = []
 
 def get_last_blockchain_value():
     """ Returns the last value of the current blockchain """
+    if len(blockchain) < 1:
+        return None
     return blockchain[-1]
 
 # This function accepts two arguments
 # One required one transamount and other one last_transaction is optional
-def add_value(transaction_amount, last_transaction=[[1]]):
+def add_transaction(transaction_amount, last_transaction=[1]):
     """ Adding transaction to our Blockchain
         
         Arguments:
@@ -77,6 +79,8 @@ def add_value(transaction_amount, last_transaction=[[1]]):
             :last_transaction: The last blockchain value (default [1]).
 
     """
+    if last_transaction == None:
+        last_transaction = [1]
     blockchain.append([last_transaction,transaction_amount])
 
 def get_transaction_value():
@@ -88,8 +92,8 @@ def get_user_choice():
     return user_choice
 
 # Get the first tranaction value and add it to the blockchain
-tx_amount = get_transaction_value()
-add_value(tx_amount)
+# tx_amount = get_transaction_value()
+# add_value(tx_amount)
 
 # Get the second tranaction value and add it to the blockchain
 # tx_amount = get_transaction_value()
@@ -109,7 +113,7 @@ while True:
     user_choice = get_user_choice()
     if user_choice == "1":
         tx_amount = get_transaction_value()
-        add_value(last_transaction=get_last_blockchain_value(),transaction_amount=tx_amount)
+        add_transaction(last_transaction=get_last_blockchain_value(),transaction_amount=tx_amount)
 
     elif user_choice == "2":
         # Output the blockchain value to console
