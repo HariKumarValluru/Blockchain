@@ -101,6 +101,8 @@ def get_user_choice():
 def print_blockchain_blocks():
     for block in blockchain:
         print(block)
+    else:
+        print("-" * 30)
 
 def verify_chain():
     block_index = 0
