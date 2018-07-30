@@ -73,11 +73,9 @@ def get_last_blockchain_value():
 # One required one transamount and other one last_transaction is optional
 def add_transaction(transaction_amount, last_transaction=[1]):
     """ Adding transaction to our Blockchain
-        
         Arguments:
             :transaction_amount: The amount should be added.
             :last_transaction: The last blockchain value (default [1]).
-
     """
     if last_transaction == None:
         last_transaction = [1]
@@ -118,10 +116,11 @@ def verify_chain():
             break
         block_index += 1
     return is_valid
-            
+
+waiting_for_input = True            
 
 # Adding while loop for asking user input
-while True:
+while waiting_for_input:
     print("Please enter your choice")
     print("1: Add a new transaction value")
     print("2: Output the blockchain blocks")
@@ -138,9 +137,8 @@ while True:
     elif user_choice == "m":
         if len(blockchain) >= 1:
             blockchain[0] = [2]
-    elif user_choice == "q" :
-        break
-
+    elif user_choice == "q":
+        waiting_for_input = False
     else:
         print("Input is invalid, please pick a value from a list.")
 
