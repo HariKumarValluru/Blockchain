@@ -1,67 +1,7 @@
-# blockchain = [[1]]
-
-# def add_value():
-#     blockchain.append([blockchain[-1],23])
-#     print(blockchain)
-
-# add_value()
-# add_value()
-# add_value()
-
-# blockchain = [[1]]
-
-# def add_value(transaction_amount):
-#     blockchain.append([blockchain[-1], transaction_amount])
-#     print(blockchain)
-
-# add_value(2)
-
-# add_value(16.8)
-
-# add_value(5.9)
-
-# blockchain = [[1]]
-
-# def get_last_blockchain_value():
-#     return blockchain[-1]
-
-# def add_value(transaction_amount):
-#     blockchain.append([get_last_blockchain_value(),transaction_amount])
-
-# add_value(5)
-# add_value(47.4)
-
-# print(blockchain)
-
-# blockchain = []
-
-# def get_last_blockchain_value():
-#     return blockchain[-1]
-
-# def add_value(transaction_amount, last_tranaction=[[1]]):
-#     blockchain.append([last_tranaction,transaction_amount])
-
-# add_value(4)
-# add_value(4,get_last_blockchain_value())
-
-# print(blockchain)
-
-
-# blockchain = []
-
-# def get_last_blockchain_value():
-#     return blockchain[-1]
-
-# def add_value(transaction_amount, last_transaction=[[1]]):
-#     blockchain.append([last_transaction,transaction_amount])
-
-# add_value(55)
-# add_value(last_transaction=get_last_blockchain_value(),transaction_amount=411)
-
-# print(blockchain)
-
 # Initializing out empty blockchain List[]
 blockchain = []
+open_transactions = []
+owner = "Hari"
 
 def get_last_blockchain_value():
     """ Returns the last value of the current blockchain """
@@ -71,31 +11,33 @@ def get_last_blockchain_value():
 
 # This function accepts two arguments
 # One required one transamount and other one last_transaction is optional
-def add_transaction(transaction_amount, last_transaction=[1]):
+def add_transaction(recipient, sender=owner, amount=1.0,):
     """ Adding transaction to our Blockchain
-        Arguments:
-            :transaction_amount: The amount should be added.
-            :last_transaction: The last blockchain value (default [1]).
+        
+        Params:
+            :sender: The sender of the coins.
+            :recipient: The recipent of the coins
+            :amount: The amount of coins sent with the transaction (default [1]).
     """
-    if last_transaction == None:
-        last_transaction = [1]
-    blockchain.append([last_transaction,transaction_amount])
+    transaction = {
+        "sender":sender,
+        "recipient":recipient,
+        "amount":amount
+    }
+    open_transactions.append(transaction)
+
+def mine_block():
+    pass
 
 def get_transaction_value():
     # Get the user input and transform it float and store it
-    return float(input("Your transaction amount: "))
+    tx_recipient = input("Enter the recipient of the transaction: ")
+    tx_amount = float(input("Your transaction amount: "))
+    return (tx_recipient, tx_amount)
 
 def get_user_choice():
     user_choice = input("Your choice: ")
     return user_choice
-
-# Get the first tranaction value and add it to the blockchain
-# tx_amount = get_transaction_value()
-# add_value(tx_amount)
-
-# Get the second tranaction value and add it to the blockchain
-# tx_amount = get_transaction_value()
-# add_value(last_transaction=get_last_blockchain_value(),transaction_amount=tx_amount)
 
 # This will output the blockchain blocks in loop
 def print_blockchain_blocks():
@@ -105,7 +47,6 @@ def print_blockchain_blocks():
         print("-" * 30)
 
 def verify_chain():
-    # block_index = 0
     is_valid = True
     for block_index in range(len(blockchain)):
         if block_index == 0:
@@ -114,17 +55,6 @@ def verify_chain():
             is_valid = True
         else:
             is_valid = False
-    #        break
-    # for block in blockchain:
-    #     if block_index == 0:
-    #         block_index += 1
-    #         continue
-    #     elif block[0] == blockchain[block_index - 1]:
-    #         is_valid = True
-    #     else:
-    #         is_valid = False
-    #         break
-    #     block_index += 1
     return is_valid
 
 waiting_for_input = True            
@@ -138,11 +68,11 @@ while waiting_for_input:
     print("q: Quit")
     user_choice = get_user_choice()
     if user_choice == "1":
-        tx_amount = get_transaction_value()
-        add_transaction(tx_amount, get_last_blockchain_value())
+        tx_data = get_transaction_value()
+        recipient, amount = tx_data
+        add_transaction(recipient, amount=amount)
+        print(open_transactions)
     elif user_choice == "2":
-        # Output the blockchain value to console
-        # print(blockchain)
         print_blockchain_blocks()
     elif user_choice == "m":
         if len(blockchain) >= 1:
