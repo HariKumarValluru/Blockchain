@@ -88,15 +88,20 @@ tx_amount = get_user_input()
 add_value(tx_amount)
 
 # Get the second tranaction value and add it to the blockchain
-tx_amount = get_user_input()
-add_value(last_transaction=get_last_blockchain_value(),transaction_amount=tx_amount)
+# tx_amount = get_user_input()
+# add_value(last_transaction=get_last_blockchain_value(),transaction_amount=tx_amount)
 
-# Output the blockchain value to console
-# print(blockchain)
+# Adding while loop for asking user input
+while True:
+    tx_amount = get_user_input()
+    add_value(last_transaction=get_last_blockchain_value(),transaction_amount=tx_amount)
 
-# Outputting the blockchain using for loop
-for block in blockchain:
-    print("Outputing the Block")
-    print(block)
+    # Output the blockchain value to console
+    # print(blockchain)
+
+    # Outputting the blockchain using for loop
+    for block in blockchain:
+        print("Outputing the Block")
+        print(block)
 
 print ("Done!")
