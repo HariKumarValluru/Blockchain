@@ -104,26 +104,48 @@ def print_blockchain_blocks():
     for block in blockchain:
         print(block)
 
+def verify_chain():
+    block_index = 0
+    is_valid = True
+    for block in blockchain:
+        if block_index == 0:
+            block_index += 1
+            continue
+        elif block[0] == blockchain[block_index - 1]:
+            is_valid = True
+        else:
+            is_valid = False
+            break
+        block_index += 1
+    return is_valid
+            
+
 # Adding while loop for asking user input
 while True:
     print("Please enter your choice")
     print("1: Add a new transaction value")
     print("2: Output the blockchain blocks")
+    print("m: Manipulate the blockchain")
     print("q: Quit")
     user_choice = get_user_choice()
     if user_choice == "1":
         tx_amount = get_transaction_value()
-        add_transaction(last_transaction=get_last_blockchain_value(),transaction_amount=tx_amount)
-
+        add_transaction(tx_amount, get_last_blockchain_value())
     elif user_choice == "2":
         # Output the blockchain value to console
         # print(blockchain)
-        print_blockchain_blocks()     
-
+        print_blockchain_blocks()
+    elif user_choice == "m":
+        if len(blockchain) >= 1:
+            blockchain[0] = [2]
     elif user_choice == "q" :
         break
 
     else:
         print("Input is invalid, please pick a value from a list.")
+
+    if not verify_chain():
+        print("Invalid Blockchain!")
+        break
 
 print ("Done!")
