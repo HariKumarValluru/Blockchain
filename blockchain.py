@@ -145,5 +145,6 @@ while waiting_for_input:
     if not verify_chain():
         print("Invalid Blockchain!")
         break
-
+else:
+    print("User Left!")
 print ("Done!")
