@@ -7,6 +7,7 @@ genisis_block = {
 blockchain = [genisis_block]
 open_transactions = []
 owner = "Hari"
+participants = set()
 
 def hash_block(block):
     # list comprehensions [element for element in list]
@@ -35,6 +36,8 @@ def add_transaction(recipient, sender=owner, amount=1.0,):
         "amount":amount
     }
     open_transactions.append(transaction)
+    participants.add(sender)
+    participants.add(recipient)
 
 def mine_block():
     last_block = blockchain[-1]
@@ -80,6 +83,7 @@ while waiting_for_input:
     print("1: Add a new transaction value")
     print("2: Mine Block")
     print("3: Output the blockchain blocks")
+    print("4: List all senders/recipients")
     print("m: Manipulate the blockchain")
     print("q: Quit")
     user_choice = get_user_choice()
@@ -92,6 +96,8 @@ while waiting_for_input:
         mine_block()
     elif user_choice == "3":
         print_blockchain_blocks()
+    elif user_choice == "4":
+        print(participants)
     elif user_choice == "m":
         if len(blockchain) >= 1:
             blockchain[0] = {
