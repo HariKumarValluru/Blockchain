@@ -1,4 +1,6 @@
 # Initializing out empty blockchain List[]
+MINING_REWARD = 10
+
 genisis_block = {
     "previous_hash": "",
     "index": 0,
@@ -11,8 +13,7 @@ participants = set()
 
 def hash_block(block):
     # list comprehensions [element for element in list]
-    hashed_block = "-".join([str(block[keys]) for keys in block])
-    return hashed_block
+    return "-".join([str(block[key]) for key in block])
 
 def get_balances(participant):
     tx_sender = [[tx['amount'] for tx in block['transactions'] if tx['sender'] == participant] for block in blockchain]
@@ -40,13 +41,13 @@ def add_transaction(recipient, sender=owner, amount=1.0,):
         
         Params:
             :sender: The sender of the coins.
-            :recipient: The recipent of the coins
+            :recipient: The recipient of the coins
             :amount: The amount of coins sent with the transaction (default [1]).
     """
     transaction = {
-        "sender":sender,
-        "recipient":recipient,
-        "amount":amount
+        "sender": sender,
+        "recipient": recipient,
+        "amount": amount
     }
     open_transactions.append(transaction)
     participants.add(sender)
@@ -54,6 +55,12 @@ def add_transaction(recipient, sender=owner, amount=1.0,):
 
 def mine_block():
     last_block = blockchain[-1]
+    reward_transaction = {
+        "sender": "MINNER",
+        "recipient": owner,
+        "amount": MINING_REWARD
+    }
+    open_transactions.append(reward_transaction)
     hashed_block = hash_block(last_block)
     block = {
         "previous_hash": hashed_block,
