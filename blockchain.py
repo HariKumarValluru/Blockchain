@@ -8,6 +8,11 @@ blockchain = [genisis_block]
 open_transactions = []
 owner = "Hari"
 
+def hash_block(block):
+    # list comprehensions [element for element in list]
+    hashed_block = "-".join([str(block[keys]) for keys in block])
+    return hashed_block
+
 def get_last_blockchain_value():
     """ Returns the last value of the current blockchain """
     if len(blockchain) < 1:
@@ -33,12 +38,7 @@ def add_transaction(recipient, sender=owner, amount=1.0,):
 
 def mine_block():
     last_block = blockchain[-1]
-    # list comprehensions [element for element in list]
-    hashed_block = "-".join([str(last_block[keys]) for keys in last_block])
-    # for keys in last_block:
-    #     value = last_block[keys]
-    #     hashed_block = hashed_block + str(value)
-    print(hashed_block)
+    hashed_block = hash_block(last_block)
     block = {
         "previous_hash": hashed_block,
         "index": len(blockchain),
@@ -64,15 +64,13 @@ def print_blockchain_blocks():
         print("-" * 30)
 
 def verify_chain():
-    is_valid = True
-    for block_index in range(len(blockchain)):
-        if block_index == 0:
+    """ Verify the current blockchain and returns True if it's valid False if not"""
+    for (index, block) in enumerate(blockchain):
+        if index == 0:
             continue
-        elif blockchain[block_index][0] == blockchain[block_index - 1]:
-            is_valid = True
-        else:
-            is_valid = False
-    return is_valid
+        if block['previous_hash'] != hash_block(blockchain[index - 1]):
+            return False
+    return True
 
 waiting_for_input = True            
 
@@ -96,16 +94,24 @@ while waiting_for_input:
         print_blockchain_blocks()
     elif user_choice == "m":
         if len(blockchain) >= 1:
-            blockchain[0] = [2]
+            blockchain[0] = {
+                "previous_hash": "",
+                "index": 0,
+                "transactions": [{
+                    "sender" : "Chiris",
+                    "recipient": "Max",
+                    "amount" : 200.00
+                }]
+            }
     elif user_choice == "q":
         waiting_for_input = False
     else:
         print("Input is invalid, please pick a value from a list.")
 
-    # if not verify_chain():
-    #     print_blockchain_blocks()
-    #     print("Invalid Blockchain!")
-    #     break
+    if not verify_chain():
+        print_blockchain_blocks()
+        print("Invalid Blockchain!")
+        break
 else:
     print("User Left!")
 print ("Done!")
