@@ -14,6 +14,19 @@ def hash_block(block):
     hashed_block = "-".join([str(block[keys]) for keys in block])
     return hashed_block
 
+def get_balances(participant):
+    tx_sender = [[tx['amount'] for tx in block['transactions'] if tx['sender'] == participant] for block in blockchain]
+    amount_sent = 0
+    for tx in tx_sender:
+        if len(tx) > 0:
+            amount_sent += tx[0]
+    tx_recipient = [[tx['amount'] for tx in block['transactions'] if tx['recipient'] == participant] for block in blockchain]
+    amount_recive = 0
+    for tx in tx_recipient:
+        if len(tx) > 0:
+            amount_recive += tx[0]
+    return amount_recive - amount_sent
+
 def get_last_blockchain_value():
     """ Returns the last value of the current blockchain """
     if len(blockchain) < 1:
@@ -48,6 +61,7 @@ def mine_block():
         "transactions": open_transactions
     }
     blockchain.append(block)
+    return True
 
 def get_transaction_value():
     # Get the user input and transform it float and store it
@@ -118,6 +132,8 @@ while waiting_for_input:
         print_blockchain_blocks()
         print("Invalid Blockchain!")
         break
+
+    print(get_balances(owner))
 else:
     print("User Left!")
 print ("Done!")
