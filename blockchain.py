@@ -114,7 +114,8 @@ while waiting_for_input:
         add_transaction(recipient, amount=amount)
         print(open_transactions)
     elif user_choice == "2":
-        mine_block()
+        if mine_block():
+            open_transactions = []
     elif user_choice == "3":
         print_blockchain_blocks()
     elif user_choice == "4":
