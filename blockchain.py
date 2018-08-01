@@ -1,6 +1,7 @@
 from functools import reduce
 import hashlib
 from collections import OrderedDict
+import json
 
 # Import two functions from our hash_util.py file. Omit the ".py" in the import
 from hash_util import hash_string_256, hash_block
@@ -24,6 +25,47 @@ owner = "Hari"
 # Registered participants: Ourself + other people sending/ receiving coins
 participants = {owner}
 
+def load_data():
+    with open("blockchain.txt", mode="r") as f:
+        file_content = f.readlines()
+        global blockchain
+        global open_transactions
+        blockchain = json.loads(file_content[0][:-1])
+        blockchain = [
+            {
+                "previous_hash": block['previous_hash'],
+                "index": block["index"],
+                "proof": block['proof'],
+                "transactions": [ 
+                    OrderedDict([
+                        ("sender", tx['sender']),
+                        ("recipient", tx['recipient']),
+                        ("amount", tx['amount'])
+                    ]) 
+                    for tx in block['transactions']
+                ] 
+            } 
+            for block in blockchain
+        ]
+        open_transactions = json.loads(file_content[1])
+        open_transactions = [
+            OrderedDict([
+                ("sender", tx['sender']),
+                ("recipient", tx['recipient']),
+                ("amount", tx['amount'])
+            ]) 
+            for tx in open_transactions
+        ]
+
+load_data()
+
+def save_data():
+    with open("blockchain.txt", mode="w") as f:
+        f.write(json.dumps(blockchain))
+        f.write("\n")
+        f.write(json.dumps(open_transactions))
+    
+
 def valid_prof(transactions, previous_hash, proof):
     """Validate a proof of work number and see if it solves the puzzle algorithm (two leading 0s)
 
@@ -34,6 +76,7 @@ def valid_prof(transactions, previous_hash, proof):
     """
     # Create a string with all the hash inputs
     guess = (str(transactions) + str(previous_hash) + str(proof)).encode()
+    print(guess)
     # Hash the string
     # IMPORTANT: This is NOT the same hash as will be stored in the previous_hash. It's a not a block's hash. It's only used for the proof-of-work algorithm.
     guess_hash = hash_string_256(guess)
@@ -116,6 +159,7 @@ def add_transaction(recipient, sender=owner, amount=1.0,):
         open_transactions.append(transaction)
         participants.add(sender)
         participants.add(recipient)
+        save_data()
         return True
     return False
 
@@ -211,6 +255,7 @@ while waiting_for_input:
     elif user_choice == "2":
         if mine_block():
             open_transactions = []
+            save_data()
     elif user_choice == "3":
         print_blockchain_blocks()
     elif user_choice == "4":
