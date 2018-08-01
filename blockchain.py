@@ -1,6 +1,7 @@
 from functools import reduce
 import hashlib
 import json
+from collections import OrderedDict
 # Initializing out empty blockchain List[]
 MINING_REWARD = 10
 
@@ -17,12 +18,12 @@ participants = set()
 
 def hash_block(block):
     # list comprehensions [element for element in list]
-    return hashlib.sha256(json.dumps(block).encode()).hexdigest()
+    return hashlib.sha256(json.dumps(block, sort_keys=True).encode()).hexdigest()
 
 def valid_prof(transaction, previous_hash, proof):
     guess = (str(transaction) + str(previous_hash) + str(proof)).encode()
     guess_hash = hashlib.sha256(guess).hexdigest()
-    print(guess_hash)
+    # print(guess_hash)
     return guess_hash[0:2] == "00"
 
 def proof_of_work():
@@ -65,11 +66,14 @@ def add_transaction(recipient, sender=owner, amount=1.0,):
             :recipient: The recipient of the coins
             :amount: The amount of coins sent with the transaction (default [1]).
     """
-    transaction = {
-        "sender": sender,
-        "recipient": recipient,
-        "amount": amount
-    }
+    # transaction = {
+    #     "sender": sender,
+    #     "recipient": recipient,
+    #     "amount": amount
+    # }
+    transaction = OrderedDict([
+        ("sender", sender),("recipient", recipient), ("amount", amount)
+    ])
     if verify_transaction(transaction):
         open_transactions.append(transaction)
         participants.add(sender)
@@ -81,11 +85,14 @@ def mine_block():
     last_block = blockchain[-1]
     hashed_block = hash_block(last_block)
     proof = proof_of_work()
-    reward_transaction = {
-        "sender": "MINNER",
-        "recipient": owner,
-        "amount": MINING_REWARD
-    }
+    # reward_transaction = {
+    #     "sender": "MINNER",
+    #     "recipient": owner,
+    #     "amount": MINING_REWARD
+    # }
+    reward_transaction = OrderedDict([
+        ("sender", "MINNER"), ("recipient", owner), ("amount", MINING_REWARD)
+    ])
     copied_transactions = open_transactions[:]
     copied_transactions.append(reward_transaction)
     block = {
