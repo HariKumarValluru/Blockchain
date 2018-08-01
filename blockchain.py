@@ -7,7 +7,8 @@ MINING_REWARD = 10
 genisis_block = {
     "previous_hash": "",
     "index": 0,
-    "transactions": []
+    "transactions": [],
+    "proof": 100
 }
 blockchain = [genisis_block]
 open_transactions = []
@@ -17,6 +18,20 @@ participants = set()
 def hash_block(block):
     # list comprehensions [element for element in list]
     return hashlib.sha256(json.dumps(block).encode()).hexdigest()
+
+def valid_prof(transaction, previous_hash, proof):
+    guess = (str(transaction) + str(previous_hash) + str(proof)).encode()
+    guess_hash = hashlib.sha256(guess).hexdigest()
+    print(guess_hash)
+    return guess_hash[0:2] == "00"
+
+def proof_of_work():
+    last_block = blockchain[-1]
+    last_hash = hash_block(last_block)
+    proof = 0
+    while not valid_prof(open_transactions, last_hash, proof):
+        proof += 1
+    return proof
 
 def get_balances(participant):
     tx_sender = [[tx['amount'] for tx in block['transactions'] if tx['sender'] == participant] for block in blockchain]
@@ -64,6 +79,8 @@ def add_transaction(recipient, sender=owner, amount=1.0,):
 
 def mine_block():
     last_block = blockchain[-1]
+    hashed_block = hash_block(last_block)
+    proof = proof_of_work()
     reward_transaction = {
         "sender": "MINNER",
         "recipient": owner,
@@ -71,11 +88,11 @@ def mine_block():
     }
     copied_transactions = open_transactions[:]
     copied_transactions.append(reward_transaction)
-    hashed_block = hash_block(last_block)
     block = {
         "previous_hash": hashed_block,
         "index": len(blockchain),
-        "transactions": copied_transactions
+        "transactions": copied_transactions,
+        "proof": proof
     }
     blockchain.append(block)
     return True
@@ -103,6 +120,9 @@ def verify_chain():
         if index == 0:
             continue
         if block['previous_hash'] != hash_block(blockchain[index - 1]):
+            return False
+        if not valid_prof(block['transactions'][:-1], block['previous_hash'], block['proof']):
+            print("Proof of Work is invalid!")
             return False
     return True
 
