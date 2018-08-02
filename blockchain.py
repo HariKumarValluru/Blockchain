@@ -27,51 +27,53 @@ owner = "Hari"
 participants = {owner}
 
 def load_data():
-    with open("blockchain.p", mode="rb") as f:
-        file_content = pickle.loads(f.read())
+    with open("blockchain.txt", mode="r") as f:
+        # file_content = pickle.loads(f.read())
+        file_content = f.readlines()
         global blockchain
         global open_transactions
-        blockchain = file_content['chain']
-        open_transactions = file_content['ot']
-        # blockchain = [
-        #     {
-        #         "previous_hash": block['previous_hash'],
-        #         "index": block["index"],
-        #         "proof": block['proof'],
-        #         "transactions": [ 
-        #             OrderedDict([
-        #                 ("sender", tx['sender']),
-        #                 ("recipient", tx['recipient']),
-        #                 ("amount", tx['amount'])
-        #             ]) 
-        #             for tx in block['transactions']
-        #         ] 
-        #     } 
-        #     for block in blockchain
-        # ]
-        # open_transactions = json.loads(file_content[1])
-        # open_transactions = [
-        #     OrderedDict([
-        #         ("sender", tx['sender']),
-        #         ("recipient", tx['recipient']),
-        #         ("amount", tx['amount'])
-        #     ])
-        #     for tx in open_transactions
-        # ]
+        # blockchain = file_content['chain']
+        # open_transactions = file_content['ot']
+        blockchain = json.loads(file_content[0][:-1])
+        blockchain = [
+            {
+                "previous_hash": block['previous_hash'],
+                "index": block["index"],
+                "proof": block['proof'],
+                "transactions": [ 
+                    OrderedDict([
+                        ("sender", tx['sender']),
+                        ("recipient", tx['recipient']),
+                        ("amount", tx['amount'])
+                    ]) 
+                    for tx in block['transactions']
+                ] 
+            } 
+            for block in blockchain
+        ]
+        open_transactions = json.loads(file_content[1])
+        open_transactions = [
+            OrderedDict([
+                ("sender", tx['sender']),
+                ("recipient", tx['recipient']),
+                ("amount", tx['amount'])
+            ])
+            for tx in open_transactions
+        ]
         # print(file_content)
 
 load_data()
 
 def save_data():
-    with open("blockchain.p", mode="wb") as f:
-        # f.write(json.dumps(blockchain))
-        # f.write("\n")
-        # f.write(json.dumps(open_transactions))
-        save_data = {
-            'chain': blockchain,
-            'ot': open_transactions
-        }
-        f.write(pickle.dumps(save_data))
+    with open("blockchain.txt", mode="w") as f:
+        f.write(json.dumps(blockchain))
+        f.write("\n")
+        f.write(json.dumps(open_transactions))
+        # save_data = {
+        #     'chain': blockchain,
+        #     'ot': open_transactions
+        # }
+        # f.write(pickle.dumps(save_data))
     
 
 def valid_prof(transactions, previous_hash, proof):
