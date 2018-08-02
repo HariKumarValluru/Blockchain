@@ -28,42 +28,47 @@ participants = {owner}
 
 def load_data():
     """Initialize blockchain + open transactions data from a file."""
-    with open("blockchain.txt", mode="r") as f:
-        # file_content = pickle.loads(f.read())
-        file_content = f.readlines()
-        global blockchain
-        global open_transactions
-        # blockchain = file_content['chain']
-        # open_transactions = file_content['ot']
-        blockchain = json.loads(file_content[0][:-1])
-        # We need to convert  the loaded data because Transactions should use OrderedDict
-        blockchain = [
-            {
-                "previous_hash": block['previous_hash'],
-                "index": block["index"],
-                "proof": block['proof'],
-                "transactions": [ 
-                    OrderedDict([
-                        ("sender", tx['sender']),
-                        ("recipient", tx['recipient']),
-                        ("amount", tx['amount'])
-                    ]) 
-                    for tx in block['transactions']
-                ] 
-            } 
-            for block in blockchain
-        ]
-        open_transactions = json.loads(file_content[1])
-        # We need to convert  the loaded data because Transactions should use OrderedDict
-        open_transactions = [
-            OrderedDict([
-                ("sender", tx['sender']),
-                ("recipient", tx['recipient']),
-                ("amount", tx['amount'])
-            ])
-            for tx in open_transactions
-        ]
-        # print(file_content)
+    try:
+        with open("blockchain.txt", mode="r") as f:
+            # file_content = pickle.loads(f.read())
+            file_content = f.readlines()
+            global blockchain
+            global open_transactions
+            # blockchain = file_content['chain']
+            # open_transactions = file_content['ot']
+            blockchain = json.loads(file_content[0][:-1])
+            # We need to convert  the loaded data because Transactions should use OrderedDict
+            blockchain = [
+                {
+                    "previous_hash": block['previous_hash'],
+                    "index": block["index"],
+                    "proof": block['proof'],
+                    "transactions": [ 
+                        OrderedDict([
+                            ("sender", tx['sender']),
+                            ("recipient", tx['recipient']),
+                            ("amount", tx['amount'])
+                        ]) 
+                        for tx in block['transactions']
+                    ] 
+                } 
+                for block in blockchain
+            ]
+            open_transactions = json.loads(file_content[1])
+            # We need to convert  the loaded data because Transactions should use OrderedDict
+            open_transactions = [
+                OrderedDict([
+                    ("sender", tx['sender']),
+                    ("recipient", tx['recipient']),
+                    ("amount", tx['amount'])
+                ])
+                for tx in open_transactions
+            ]
+            # print(file_content)
+    except IOError:
+        print("File not found")
+    finally:
+        print("Cleanup!!")
 
 load_data()
 
