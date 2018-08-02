@@ -10,15 +10,8 @@ from hash_util import hash_string_256, hash_block
 # The reward we give to miners (for creating a new block)
 MINING_REWARD = 10
 
-# Our starting block for the blockchain
-genesis_block = {
-    'previous_hash': '',
-    'index': 0,
-    'transactions': [],
-    'proof': 100
-}
 # Initializing our (empty) blockchain list
-blockchain = [genesis_block]
+blockchain = []
 # Unhandled transactions
 open_transactions = []
 # We are the owner of this blockchain node, hence this is our identifier (e.g. for sending coins)
@@ -27,13 +20,13 @@ owner = "Hari"
 participants = {owner}
 
 def load_data():
+    global blockchain
+    global open_transactions
     """Initialize blockchain + open transactions data from a file."""
     try:
         with open("blockchain.txt", mode="r") as f:
             # file_content = pickle.loads(f.read())
             file_content = f.readlines()
-            global blockchain
-            global open_transactions
             # blockchain = file_content['chain']
             # open_transactions = file_content['ot']
             blockchain = json.loads(file_content[0][:-1])
@@ -66,7 +59,17 @@ def load_data():
             ]
             # print(file_content)
     except IOError:
-        print("File not found")
+        # Our starting block for the blockchain
+        genesis_block = {
+            'previous_hash': '',
+            'index': 0,
+            'transactions': [],
+            'proof': 100
+        }
+        # Initializing our (empty) blockchain list
+        blockchain = [genesis_block]
+        # Unhandled transactions
+        open_transactions = []
     finally:
         print("Cleanup!!")
 
@@ -74,15 +77,18 @@ load_data()
 
 def save_data():
     """Save blockchain + open transactions snapshot to a file."""
-    with open("blockchain.txt", mode="w") as f:
-        f.write(json.dumps(blockchain))
-        f.write("\n")
-        f.write(json.dumps(open_transactions))
-        # save_data = {
-        #     'chain': blockchain,
-        #     'ot': open_transactions
-        # }
-        # f.write(pickle.dumps(save_data))
+    try:
+        with open("blockchain.txt", mode="w") as f:
+            f.write(json.dumps(blockchain))
+            f.write("\n")
+            f.write(json.dumps(open_transactions))
+            # save_data = {
+            #     'chain': blockchain,
+            #     'ot': open_transactions
+            # }
+            # f.write(pickle.dumps(save_data))
+    except IOError:
+        print("Saving Failed!")
     
 
 def valid_prof(transactions, previous_hash, proof):
@@ -95,11 +101,9 @@ def valid_prof(transactions, previous_hash, proof):
     """
     # Create a string with all the hash inputs
     guess = (str(transactions) + str(previous_hash) + str(proof)).encode()
-    print(guess)
     # Hash the string
     # IMPORTANT: This is NOT the same hash as will be stored in the previous_hash. It's a not a block's hash. It's only used for the proof-of-work algorithm.
     guess_hash = hash_string_256(guess)
-    print(guess_hash)
     # Only a hash (which is based on the above inputs) which starts with two 0s is treated as valid
     # This condition is of course defined by you. You could also require 10 leading 0s - this would take significantly longer (and this allows you to control the speed at which new blocks can be added)
     return guess_hash[0:2] == "00"
@@ -270,7 +274,7 @@ while waiting_for_input:
             print("Transaction success!")
         else:
             print("Transaction Failed!")
-        print(open_transactions)
+        # print(open_transactions)
     elif user_choice == "2":
         if mine_block():
             open_transactions = []
@@ -303,7 +307,7 @@ while waiting_for_input:
         print("Input is invalid, please pick a value from a list.")
 
     if not verify_chain():
-        print_blockchain_blocks()
+        # print_blockchain_blocks()
         print("Invalid Blockchain!")
         # Break out of the loop
         break
