@@ -27,6 +27,7 @@ owner = "Hari"
 participants = {owner}
 
 def load_data():
+    """Initialize blockchain + open transactions data from a file."""
     with open("blockchain.txt", mode="r") as f:
         # file_content = pickle.loads(f.read())
         file_content = f.readlines()
@@ -35,6 +36,7 @@ def load_data():
         # blockchain = file_content['chain']
         # open_transactions = file_content['ot']
         blockchain = json.loads(file_content[0][:-1])
+        # We need to convert  the loaded data because Transactions should use OrderedDict
         blockchain = [
             {
                 "previous_hash": block['previous_hash'],
@@ -52,6 +54,7 @@ def load_data():
             for block in blockchain
         ]
         open_transactions = json.loads(file_content[1])
+        # We need to convert  the loaded data because Transactions should use OrderedDict
         open_transactions = [
             OrderedDict([
                 ("sender", tx['sender']),
@@ -65,6 +68,7 @@ def load_data():
 load_data()
 
 def save_data():
+    """Save blockchain + open transactions snapshot to a file."""
     with open("blockchain.txt", mode="w") as f:
         f.write(json.dumps(blockchain))
         f.write("\n")
