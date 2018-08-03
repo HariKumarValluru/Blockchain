@@ -237,8 +237,7 @@ while waiting_for_input:
     print("1: Add a new transaction value")
     print("2: Mine Block")
     print("3: Output the blockchain blocks")
-    print("4: List all senders/recipients")
-    print("5: Check transaction validity")
+    print("4: Check transaction validity")
     # print("m: Manipulate the blockchain")
     print("q: Quit")
     user_choice = get_user_choice()
@@ -258,8 +257,6 @@ while waiting_for_input:
     elif user_choice == "3":
         print_blockchain_blocks()
     elif user_choice == "4":
-        print(participants)
-    elif user_choice == "5":
         if verify_transactions():
             print("All transactions are valid!")
         else:
