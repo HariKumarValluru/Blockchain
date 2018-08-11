@@ -8,12 +8,11 @@ from hash_util import hash_block
 from block import Block
 from transaction import Transaction
 from verification import Verification
-from node import Node
 # The reward we give to miners (for creating a new block)
 MINING_REWARD = 10
 
 class Blockchain:
-    def __init(self):
+    def __init__(self, hosting_node_id):
         # Our starting block for the blockchain
         self.genesis_block = Block(0, "", [], 100, 0)
         # Initializing our (empty) blockchain list
@@ -21,6 +20,7 @@ class Blockchain:
         # Unhandled transactions
         self.open_transactions = []
         self.load_data()
+        self.hosting_node = hosting_node_id
 # # We are the owner of this blockchain node, hence this is our identifier (e.g. for sending coins)
 # owner = "Hari"
 # Registered participants: Ourself + other people sending/ receiving coins
@@ -43,13 +43,13 @@ class Blockchain:
                         ], 
                         block['proof'], block['timestamp']
                     )
-                    for block in blockchain
+                    for block in self.chain
                 ]
                 self.open_transactions = json.loads(file_content[1])
                 # We need to convert  the loaded data because Transactions should use OrderedDict
                 self.open_transactions = [
                     Transaction(tx['sender'], tx['recipient'], tx['amount'])
-                    for tx in open_transactions
+                    for tx in self.open_transactions
                 ]
                 # print(file_content)
         except (IOError, IndexError):
@@ -61,7 +61,7 @@ class Blockchain:
         """Save blockchain + open transactions snapshot to a file."""
         try:
             with open("blockchain.txt", mode="w") as f:
-                savable_chain = [block.__dict__ for block in [Block(block_el.index, block_el.previous_hash, [tx.__dict__ for tx in block_el.transactions] ,block_el.proof, block_el.timestamp) for block_el in blockchain]]
+                savable_chain = [block.__dict__ for block in [Block(block_el.index, block_el.previous_hash, [tx.__dict__ for tx in block_el.transactions] ,block_el.proof, block_el.timestamp) for block_el in self.chain]]
                 f.write(json.dumps(savable_chain))
                 f.write("\n")
                 savable_tx = [tx.__dict__ for tx in self.open_transactions]
@@ -85,12 +85,10 @@ class Blockchain:
             proof += 1
         return proof
 
-    def get_balances(self, participant):
+    def get_balances(self):
         """Calculate and return the balance for a participant.
-
-        Arguments:
-            :participant: The person for whom to calculate the balance.
         """
+        participant = self.hosting_node
         # Fetch a list of all sent coin amounts for the given person (empty lists are returned if the person was NOT the sender)
         # This fetches sent amounts of transactions that were already included in blocks of the blockchain
         tx_sender = [[tx.amount for tx in block.transactions 
@@ -141,7 +139,7 @@ class Blockchain:
             return True
         return False
  
-    def mine_block(self, node):
+    def mine_block(self):
         """Create a new block and add open transactions to it."""
         # Fetch the currently last block of the blockchain
         last_block = self.chain[-1]
@@ -154,11 +152,13 @@ class Blockchain:
         #     "recipient": owner,
         #     "amount": MINING_REWARD
         # }
-        reward_transaction = Transaction("MINNER", node, MINING_REWARD)
+        reward_transaction = Transaction("MINNER", self.hosting_node, MINING_REWARD)
         # Copy transaction instead of manipulating the original open_transactions list
         # This ensures that if for some reason the mining should fail, we don't have the reward transaction stored in the open transactions
         copied_transactions = self.open_transactions[:]
         copied_transactions.append(reward_transaction)
         block = Block(len(self.chain), hashed_block, copied_transactions, proof)
         self.chain.append(block)
+        self.open_transactions = []
+        self.save_data()
         return True
