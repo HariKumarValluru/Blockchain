@@ -80,8 +80,8 @@ class Blockchain:
         last_hash = hash_block(last_block)
         proof = 0
         # Try different PoW numbers and return the first valid one
-        verifier = Verification()
-        while not verifier.valid_prof(self.open_transactions, last_hash, proof):
+        # verifier = Verification()
+        while not Verification.valid_prof(self.open_transactions, last_hash, proof):
             proof += 1
         return proof
 
@@ -132,8 +132,8 @@ class Blockchain:
         #     "amount": amount
         # }
         transaction = Transaction(sender, recipient, amount)
-        verifier = Verification()
-        if verifier.verify_transaction(transaction, self.get_balances):
+        # verifier = Verification()
+        if Verification.verify_transaction(transaction, self.get_balances):
             self.open_transactions.append(transaction)
             self.save_data()
             return True
