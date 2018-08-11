@@ -16,15 +16,17 @@ class Blockchain:
         # Our starting block for the blockchain
         self.genesis_block = Block(0, "", [], 100, 0)
         # Initializing our (empty) blockchain list
-        self.chain = [self.genesis_block]
+        self.__chain = [self.genesis_block]
         # Unhandled transactions
-        self.open_transactions = []
+        self.__open_transactions = []
         self.load_data()
         self.hosting_node = hosting_node_id
-# # We are the owner of this blockchain node, hence this is our identifier (e.g. for sending coins)
-# owner = "Hari"
-# Registered participants: Ourself + other people sending/ receiving coins
-# participants = {owner}
+
+    def get_chain(self):
+        return self.__chain[:]
+
+    def get_open_transactions(self):
+        return self.__open_transactions[:]
 
     def load_data(self):
         """Initialize blockchain + open transactions data from a file."""
@@ -34,7 +36,7 @@ class Blockchain:
                 file_content = f.readlines()
                 # blockchain = file_content['chain']
                 # open_transactions = file_content['ot']
-                self.chain = json.loads(file_content[0][:-1])
+                self.__chain = json.loads(file_content[0][:-1])
                 # We need to convert  the loaded data because Transactions should use OrderedDict
                 self.chain = [
                     Block(block['index'], block['previous_hash'],
@@ -43,13 +45,13 @@ class Blockchain:
                         ], 
                         block['proof'], block['timestamp']
                     )
-                    for block in self.chain
+                    for block in self.__chain
                 ]
-                self.open_transactions = json.loads(file_content[1])
+                self.__open_transactions = json.loads(file_content[1])
                 # We need to convert  the loaded data because Transactions should use OrderedDict
-                self.open_transactions = [
+                self.__open_transactions = [
                     Transaction(tx['sender'], tx['recipient'], tx['amount'])
-                    for tx in self.open_transactions
+                    for tx in self.__open_transactions
                 ]
                 # print(file_content)
         except (IOError, IndexError):
@@ -61,10 +63,10 @@ class Blockchain:
         """Save blockchain + open transactions snapshot to a file."""
         try:
             with open("blockchain.txt", mode="w") as f:
-                savable_chain = [block.__dict__ for block in [Block(block_el.index, block_el.previous_hash, [tx.__dict__ for tx in block_el.transactions] ,block_el.proof, block_el.timestamp) for block_el in self.chain]]
+                savable_chain = [block.__dict__ for block in [Block(block_el.index, block_el.previous_hash, [tx.__dict__ for tx in block_el.transactions] ,block_el.proof, block_el.timestamp) for block_el in self.__chain]]
                 f.write(json.dumps(savable_chain))
                 f.write("\n")
-                savable_tx = [tx.__dict__ for tx in self.open_transactions]
+                savable_tx = [tx.__dict__ for tx in self.__open_transactions]
                 f.write(json.dumps(savable_tx))
                 # save_data = {
                 #     'chain': blockchain,
@@ -76,12 +78,12 @@ class Blockchain:
 
     def proof_of_work(self):
         """Generate a proof of work for the open transactions, the hash of the previous block and a random number (which is guessed until it fits)."""
-        last_block = self.chain[-1]
+        last_block = self.__chain[-1]
         last_hash = hash_block(last_block)
         proof = 0
         # Try different PoW numbers and return the first valid one
         # verifier = Verification()
-        while not Verification.valid_prof(self.open_transactions, last_hash, proof):
+        while not Verification.valid_prof(self.__open_transactions, last_hash, proof):
             proof += 1
         return proof
 
@@ -92,17 +94,17 @@ class Blockchain:
         # Fetch a list of all sent coin amounts for the given person (empty lists are returned if the person was NOT the sender)
         # This fetches sent amounts of transactions that were already included in blocks of the blockchain
         tx_sender = [[tx.amount for tx in block.transactions 
-                        if tx.sender == participant] for block in self.chain]
+                        if tx.sender == participant] for block in self.__chain]
         # Fetch a list of all sent coin amounts for the given person (empty lists are returned if the person was NOT the sender)
         # This fetches sent amounts of open transactions (to avoid double spending)
-        open_tx_sender = [tx.amount for tx in self.open_transactions if tx.sender == participant]
+        open_tx_sender = [tx.amount for tx in self.__open_transactions if tx.sender == participant]
         tx_sender.append(open_tx_sender)
         amount_sent = reduce(lambda tx_sum, tx_amt: tx_sum + sum(tx_amt) 
                             if len(tx_amt) > 0 else tx_sum + 0, tx_sender, 0)
         # This fetches received coin amounts of transactions that were already included in blocks of the blockchain
         # We ignore open transactions here because you shouldn't be able to spend coins before the transaction was confirmed + included in a block
         tx_recipient = [[tx.amount for tx in block.transactions 
-                            if tx.recipient == participant] for block in self.chain]
+                            if tx.recipient == participant] for block in self.__chain]
         amount_recive = reduce(lambda tx_sum, tx_amt: tx_sum + sum(tx_amt) 
                             if len(tx_amt) > 0 else tx_sum + 0, tx_recipient, 0)
         # Return the total balance
@@ -110,9 +112,9 @@ class Blockchain:
 
     def get_last_blockchain_value(self):
         """ Returns the last value of the current blockchain """
-        if len(self.chain) < 1:
+        if len(self.__chain) < 1:
             return None
-        return self.chain[-1]
+        return self.__chain[-1]
 
     # This function accepts two arguments.
     # One required one (transaction_amount) and one optional one (last_transaction)
@@ -134,7 +136,7 @@ class Blockchain:
         transaction = Transaction(sender, recipient, amount)
         # verifier = Verification()
         if Verification.verify_transaction(transaction, self.get_balances):
-            self.open_transactions.append(transaction)
+            self.__open_transactions.append(transaction)
             self.save_data()
             return True
         return False
@@ -142,7 +144,7 @@ class Blockchain:
     def mine_block(self):
         """Create a new block and add open transactions to it."""
         # Fetch the currently last block of the blockchain
-        last_block = self.chain[-1]
+        last_block = self.__chain[-1]
         # Hash the last block (=> to be able to compare it to the stored hash value)
         hashed_block = hash_block(last_block)
         proof = self.proof_of_work()
@@ -155,10 +157,10 @@ class Blockchain:
         reward_transaction = Transaction("MINNER", self.hosting_node, MINING_REWARD)
         # Copy transaction instead of manipulating the original open_transactions list
         # This ensures that if for some reason the mining should fail, we don't have the reward transaction stored in the open transactions
-        copied_transactions = self.open_transactions[:]
+        copied_transactions = self.__open_transactions[:]
         copied_transactions.append(reward_transaction)
-        block = Block(len(self.chain), hashed_block, copied_transactions, proof)
-        self.chain.append(block)
-        self.open_transactions = []
+        block = Block(len(self.__chain), hashed_block, copied_transactions, proof)
+        self.__chain.append(block)
+        self.__open_transactions = []
         self.save_data()
         return True
