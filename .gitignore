@@ -3,3 +3,4 @@ settings.json
 __pycache__/
 *.pyc
 blockchain.txt
+tasks/
