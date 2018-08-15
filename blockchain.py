@@ -158,6 +158,7 @@ class Blockchain:
     def mine_block(self):
         """Create a new block and add open transactions to it."""
         # Fetch the currently last block of the blockchain
+        print(self.hosting_node)
         if self.hosting_node == None:
             return False
         last_block = self.__chain[-1]

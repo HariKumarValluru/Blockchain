@@ -4,7 +4,12 @@ from utility.verification import Verification
 from wallet import Wallet
 
 class Node:
-
+    """The node which runs the local blockchain instance.
+    
+    Attributes:
+        :id: The id of the node.
+        :blockchain: The blockchain which is run by this node.
+    """
     def __init__(self):
         # self.id = "Hari"
         self.wallet = Wallet()
