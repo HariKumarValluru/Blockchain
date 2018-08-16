@@ -9,6 +9,27 @@ wallet = Wallet()
 blockchain = Blockchain(wallet.public_key)
 CORS(app)
 
+@app.route('/wallet', methods=['POST'])
+def create_keys():
+    wallet.create_keys()
+    if wallet.save_keys():
+        response = {
+            'public_key': wallet.public_key,
+            'private_key': wallet.private_key
+        }
+        global blockchain
+        blockchain = Blockchain(wallet.public_key)
+        return jsonify(response), 201
+    else:
+        response = {
+            'message': "Saving the keys failed."
+        }
+        return jsonify(response), 501
+
+@app.route('/wallet', methods=['GET'])
+def load_keys():
+    wallet.load_keys()
+
 @app.route('/', methods=['GET'])
 def get_ui():
     return "This works!"
@@ -16,7 +37,6 @@ def get_ui():
 @app.route('/mine', methods=['POST'])
 def mine():
     block = blockchain.mine_block()
-    print((block))
     if block != None:
         dict_block = block.__dict__.copy()
         dict_block['transactions'] = [tx.__dict__ for tx in dict_block['transactions']]
