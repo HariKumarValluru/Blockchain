@@ -160,7 +160,7 @@ class Blockchain:
         # Fetch the currently last block of the blockchain
         print(self.hosting_node)
         if self.hosting_node == None:
-            return False
+            return None
         last_block = self.__chain[-1]
         # Hash the last block (=> to be able to compare it to the stored hash value)
         hashed_block = hash_block(last_block)
@@ -184,4 +184,4 @@ class Blockchain:
         self.__chain.append(block)
         self.__open_transactions = []
         self.save_data()
-        return True
+        return block
