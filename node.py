@@ -99,6 +99,30 @@ def broadcast_transaction():
         }
         return jsonify(response), 500
 
+@app.route('/broadcast-block', methods=['POST'])
+def broadcast_block():
+    values = request.get_json()
+    if not values:
+        response = {
+            'message': 'No data found'
+        }
+        return jsonify(response), 400
+    if 'block' not in values:
+        response = {
+            'message': 'Some data is missing'
+        } 
+        return jsonify(response), 400
+    block = values['block']
+    if block['index'] == blockchain.__chain[-1].index + 1:
+        blockchain.add_block(block)
+    elif block['index'] > blockchain.__chain[-1].index:
+        pass
+    else:
+        response = {
+            'message': 'Blockchain seems to be shoter, block not added'
+        }
+        return jsonify(response), 409
+
 
 @app.route('/transaction', methods=['POST'])
 def add_transaction():
