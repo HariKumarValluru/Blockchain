@@ -66,7 +66,7 @@ def get_balance():
         }
         return jsonify(response), 500
 
-@app.route('/broadcast-transaction')
+@app.route('/broadcast-transaction', methods=['post'])
 def broadcast_transaction():
     values = request.get_json()
     if not values:
