@@ -211,11 +211,22 @@ class Blockchain:
         self.__chain.append(block)
         self.__open_transactions = []
         self.save_data()
+        for node in self.__peer_nodes:
+            url = 'http://{}/broadcast-block'.format(node)
+            coverted_block = block.__dict__.copy()
+            coverted_block['transactions'] = [tx.__dict__ for tx in coverted_block['transactions']]
+            try:
+                response = requests.post(url, json={'block': coverted_block})
+                if response.status_code == 400 and response.status_code == 500:
+                    print('Transaction declined, needs resolving')
+                    return False
+            except requests.exceptions.ConnectionError:
+                continue
         return block
 
     def add_block(self, block):
         transactions = [Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount']) for tx in block['transactions']]
-        proof_is_valid = Verification.valid_proof(transactions, block['previous_hash'], block['proof'])
+        proof_is_valid = Verification.valid_proof(transactions[:-1], block['previous_hash'], block['proof'])
         hashes_match = hash_block(self.__chain[-1]) == block['previous_hash']
         if not proof_is_valid or not hashes_match:
             return False
