@@ -1,6 +1,7 @@
 from utility.hash_util import hash_string_256, hash_block
 from wallet import Wallet
 
+
 class Verification:
     """A helper class which offer various static and class-based verification and validation methods."""
     @staticmethod
@@ -13,14 +14,15 @@ class Verification:
             :proof: The proof number we're testing.
         """
         # Create a string with all the hash inputs
-        guess = (str([tx.to_ordered_dict() for tx in transactions]) + str(last_hash) + str(proof)).encode()
+        guess = (str([tx.to_ordered_dict() for tx in transactions]
+                     ) + str(last_hash) + str(proof)).encode()
         # Hash the string
         # IMPORTANT: This is NOT the same hash as will be stored in the previous_hash. It's a not a block's hash. It's only used for the proof-of-work algorithm.
         guess_hash = hash_string_256(guess)
         # Only a hash (which is based on the above inputs) which starts with two 0s is treated as valid
         # This condition is of course defined by you. You could also require 10 leading 0s - this would take significantly longer (and this allows you to control the speed at which new blocks can be added)
         return guess_hash[0:2] == '00'
-        
+
     @classmethod
     def verify_chain(cls, blockchain):
         """ Verify the current blockchain and return True if it's valid, False otherwise."""
@@ -35,7 +37,7 @@ class Verification:
         return True
 
     @staticmethod
-    def verify_transaction(transaction, get_balance, check_funds = True):
+    def verify_transaction(transaction, get_balance, check_funds=True):
         """Verify a transaction by checking whether the sender has sufficient coins.
 
         Arguments:

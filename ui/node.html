@@ -144,7 +144,8 @@
             </div>
             <div class="row my-3">
                 <div class="col">
-                    <button class="btn btn-primary" @click="onLoadData">{{ view === 'chain' ? 'Load Blockchain' : 'Load Transactions' }}</button>
+                    <button class="btn btn-primary" @click="onLoadData">{{ view === 'chain' ? 'Load Blockchain' : 'Load Transactions'
+                        }}</button>
                     <button v-if="view === 'chain' && wallet" class="btn btn-success" @click="onMine">Mine Coins</button>
                     <button class="btn btn-warning" @click="onResolve">Resolve Conflicts</button>
                 </div>
@@ -288,23 +289,23 @@
                         recipient: this.outgoingTx.recipient,
                         amount: this.outgoingTx.amount
                     })
-                    .then(function(response) {
-                        vm.error = null;
-                        vm.success = response.data.message;
-                        console.log(response.data);
-                        vm.funds = response.data.funds;
-                        vm.txLoading = false;
-                    })
-                    .catch(function (error) {
-                        vm.success = null;
-                        vm.error = error.response.data.message;
-                        vm.txLoading = false;
-                    });
+                        .then(function (response) {
+                            vm.error = null;
+                            vm.success = response.data.message;
+                            console.log(response.data);
+                            vm.funds = response.data.funds;
+                            vm.txLoading = false;
+                        })
+                        .catch(function (error) {
+                            vm.success = null;
+                            vm.error = error.response.data.message;
+                            vm.txLoading = false;
+                        });
                 },
                 onMine: function () {
                     var vm = this
                     axios.post('/mine')
-                        .then(function(response) {
+                        .then(function (response) {
                             vm.error = null;
                             vm.success = response.data.message;
                             console.log(response.data);
@@ -315,10 +316,10 @@
                             vm.error = error.response.data.message;
                         });
                 },
-                onResolve: function(){
+                onResolve: function () {
                     var vm = this
                     axios.post('/resolve-conflicts')
-                        .then(function(response) {
+                        .then(function (response) {
                             vm.error = null;
                             vm.success = response.data.message;
                         })
